@@ -131,10 +131,26 @@ export PYTHONPATH=.
 python -m src.cli \
     --input-dir data/sample_inputs \
     --config configs/custom_projection.json \
-    --github-map "carlos@example.com:carlos-rivera-swe" \
+    --github-map "carlos@example.com:octocat" \
     --offline
 ```
-*Note: Outputs will be securely routed to `data/output/default_canonical_output.json` and `data/output/projected_custom_output.json`.*
+*What happens here: The pipeline loads `data/sample_inputs/github_octocat.json` and seamlessly merges the mock GitHub data with the `carlos@example.com` candidate profile.*
+
+#### Online Mode (Live GitHub API)
+To hit the live GitHub API with a real account, simply map the candidate's email to their GitHub username. The pipeline will fetch their bio, repositories, and languages in real-time and merge them into the candidate group.
+```bash
+export PYTHONPATH=.
+python -m src.cli \
+    --input-dir data/sample_inputs \
+    --config configs/projection.json \
+    --github-map "aayush.bhargav@iiitb.ac.in:Aayush-Bhargav"
+```
+*💡 Pro-Tip: If you hit GitHub's 60-request/hour anonymous rate limit, you can bypass it by generating a free Personal Access Token and exporting it before running: `export GITHUB_TOKEN="ghp_your_token_here"`.*
+
+Outputs will be securely routed to the `data/output/` directory:
+- `default_canonical_output.json` (The strict, fully-resolved Pydantic profiles)
+- `projected_custom_output.json` (The reshaped JSON based on your config)
+- `conflict_ledger.log` (An append-only audit log of any dropped scalar conflicts)
 
 ### Step 5: Run the Test Suite
 To verify that all 50 unit and integration tests pass:
