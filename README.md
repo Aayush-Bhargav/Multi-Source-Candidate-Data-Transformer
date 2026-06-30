@@ -131,7 +131,7 @@ export PYTHONPATH=.
 python -m src.cli \
     --input-dir data/sample_inputs \
     --config configs/custom_projection.json \
-    --github-map "carlos@example.com:octocat" \
+    --github-map "octocat@github.com:octocat" \
     --offline
 ```
 *What happens here: The pipeline loads `data/sample_inputs/github_octocat.json` and seamlessly merges the mock GitHub data with the `carlos@example.com` candidate profile.*
