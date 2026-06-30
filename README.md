@@ -134,7 +134,7 @@ python -m src.cli \
     --github-map "octocat@github.com:octocat" \
     --offline
 ```
-*What happens here: The pipeline loads `data/sample_inputs/github_octocat.json` and seamlessly merges the mock GitHub data with the `carlos@example.com` candidate profile.*
+*What happens here: The pipeline loads `data/sample_inputs/github_octocat.json` and seamlessly merges the mock GitHub data with the `octocat@github.com` candidate profile.*
 
 #### Online Mode (Live GitHub API)
 To hit the live GitHub API with a real account, simply map the candidate's email to their GitHub username. The pipeline will fetch their bio, repositories, and languages in real-time and merge them into the candidate group.
