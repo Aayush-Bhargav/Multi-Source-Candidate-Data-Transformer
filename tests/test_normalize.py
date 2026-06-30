@@ -74,7 +74,7 @@ def test_normalize_date():
     assert res.value is None
 
     # Invalid formats
-    for bad in ["Jan 2021", "2021-13", "13/2021", "sometime in 2022"]:
+    for bad in ["2021-13", "13/2021", "sometime in 2022"]:
         res = normalize_date(bad)
         assert res.normalized is False
         assert res.value == bad

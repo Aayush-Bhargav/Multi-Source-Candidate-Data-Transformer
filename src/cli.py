@@ -57,7 +57,7 @@ def process(
             "--offline",
             help="Run GitHub adapter in offline mode."
         )
-    ] = True,
+    ] = False,
     github_map: Annotated[
         Optional[str],
         typer.Option(

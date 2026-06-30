@@ -17,7 +17,6 @@ def test_normalize_date_rejects_fuzzy_formats():
         "mid-2020",
         "Around 2018",
         "2022-Q3",
-        "Jan 2021",        # abbreviated month
         "sometime in 2022",
     ]
     for raw in fuzzy_inputs:

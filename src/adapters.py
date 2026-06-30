@@ -346,6 +346,9 @@ _SECTION_PATTERNS: dict[str, re.Pattern[str]] = {
         r"key\s+projects?|notable\s+work",
         re.IGNORECASE,
     ),
+    "coursework": re.compile(r"^relevant\s+coursework|coursework", re.IGNORECASE),
+    "achievements": re.compile(r"^achievements|awards|honors", re.IGNORECASE),
+    "extracurricular": re.compile(r"^extracurricular|activities|leadership", re.IGNORECASE),
 }
 
 
@@ -365,31 +368,52 @@ def resume_adapter(
 
         doc = fitz.open(str(path))
         full_text = "\n".join(page.get_text() for page in doc)
+        # --- FIX: Extract actual URLs from PDF hyperlink annotations ---
+        pdf_links = []
+        for page in doc:
+            for link in page.get_links():
+                uri = link.get("uri")
+                if uri:
+                    pdf_links.append(uri)
         doc.close()
 
         if not full_text.strip():
             yield _failed_fragment("resume", "empty_text")
             return
 
-        yield _parse_resume_text(full_text, str(path))
+        yield _parse_resume_text(full_text, str(path), pdf_links=pdf_links)
 
     except Exception as exc:
         logger.error("resume_adapter: failed — %s", exc)
         yield _failed_fragment("resume", str(exc))
 
 
-def _parse_resume_text(text: str, path_str: str) -> CandidateFragment:
+def _parse_resume_text(text: str, path_str: str, pdf_links: list[str] | None = None) -> CandidateFragment:
     """Deterministic regex-based parser for raw résumé text."""
     lines = text.splitlines()
-
+    # --- FIX 5A: Extract Location from the header (first 10 lines) ---
+    location_raw = None
+    for line in lines[:10]:
+        # Look for "City, State" or "City, Country" pattern
+        m = re.search(r"\b([A-Za-z][\w\s]*),\s*([A-Za-z]{2,})\b", line)
+        if m:
+            loc = m.group(0)
+            # Filter out obvious non-locations (like "Institute, Technology")
+            if not re.search(r"tech|university|institute|college|school|inc|ltd|@|http", loc, re.I):
+                location_raw = loc
+                break
     # Contact info
     emails = list(dict.fromkeys(_RE_EMAIL.findall(text)))
     phones = list(dict.fromkeys(_RE_PHONE.findall(text)))
+    # --- FIX 5B: Merge regex URLs with invisible PDF annotation URLs ---
+    all_urls = set(pdf_links or [])
+    all_urls.update(_RE_URL.findall(text))
+    
     links: dict[str, Any] = {}
-    li = _RE_LINKEDIN.findall(text)
-    gh = _RE_GITHUB.findall(text)
+    li = list(set(_RE_LINKEDIN.findall(text) + [u for u in all_urls if "linkedin.com" in u.lower()]))
+    gh = list(set(_RE_GITHUB.findall(text) + [u for u in all_urls if "github.com" in u.lower()]))
     other = [
-        u for u in _RE_URL.findall(text)
+        u for u in all_urls
         if "linkedin.com" not in u.lower() and "github.com" not in u.lower()
     ]
     if li:
@@ -428,6 +452,7 @@ def _parse_resume_text(text: str, path_str: str) -> CandidateFragment:
     # Skills
     skills_raw: list[str] = []
     for sl in sections.get("skills", []):
+        sl = re.sub(r"^(languages|libraries\s*&?\s*frameworks|technologies|tools)\s*:\s*", "", sl, flags=re.IGNORECASE)
         skills_raw.extend(
             t.strip()
             for t in re.split(r"[,|•;·\u2022\u2023\u25E6\u2043]+", sl)
@@ -436,7 +461,19 @@ def _parse_resume_text(text: str, path_str: str) -> CandidateFragment:
 
     # Experience / education blocks
     experience_raw = _group_blocks(sections.get("experience", []))
-    education_raw = _group_blocks(sections.get("education", []))
+    
+    edu_blocks = _group_blocks(sections.get("education", []))
+    education_raw = []
+    for b in edu_blocks:
+        if "raw_lines" in b:
+            education_raw.append(b)
+        else:
+            education_raw.append({
+                "institution": b.get("company"),
+                "degree": b.get("title"),
+                "field": "Unspecified",
+                "end_year": b.get("end")
+            })
 
     headline: str | None = None
     exp = sections.get("experience", [])
@@ -451,6 +488,7 @@ def _parse_resume_text(text: str, path_str: str) -> CandidateFragment:
         emails=emails,
         phones=phones,
         headline=headline,
+        location_raw=location_raw, 
         skills_raw=skills_raw,
         experience_raw=experience_raw,
         education_raw=education_raw,
@@ -462,10 +500,10 @@ def _parse_resume_text(text: str, path_str: str) -> CandidateFragment:
 # Matches patterns like "Jan 2020 - Present", "2019-01 - 2020-06",
 # "January 2020 to December 2021", "2020 — Present", etc.
 _RE_DATE_RANGE = re.compile(
-    r"(?:(?:(?:" + r"|".join(re.escape(name) for name in __import__("calendar").month_name if name)
+    r"(?:(?:(?:" + r"|".join(re.escape(name) for name in list(__import__("calendar").month_name)[1:] + list(__import__("calendar").month_abbr)[1:])
     + r")[,]?\s+\d{4}|\d{4}[-/]\d{2}|\d{2}[-/]\d{4}|\d{4}))"
     r"\s*(?:[-–—]|to)\s*"
-    r"(?:(?:" + r"|".join(re.escape(name) for name in __import__("calendar").month_name if name)
+    r"(?:(?:" + r"|".join(re.escape(name) for name in list(__import__("calendar").month_name)[1:] + list(__import__("calendar").month_abbr)[1:])
     + r")[,]?\s+\d{4}|\d{4}[-/]\d{2}|\d{2}[-/]\d{4}|\d{4}|[Pp]resent|[Cc]urrent)",
     re.IGNORECASE,
 )
@@ -479,22 +517,27 @@ _RE_TITLE_COMPANY = re.compile(
 
 
 def _group_blocks(lines: list[str]) -> list[dict[str, Any]]:
-    """Group consecutive lines into blocks, attempting date/title/company extraction.
-
-    Within each block of raw_lines, look for a date-range line.  If found,
-    try to parse title/company from the remaining lines using common
-    'Title at Company' / 'Title, Company' / 'Title — Company' patterns.
-    Falls back to 'Unspecified' only when no lines remain after date removal.
-    """
     blocks: list[dict[str, Any]] = []
     buf: list[str] = []
     for line in lines:
-        if not line.strip():
+        s = line.strip()
+        if not s:
             if buf:
                 blocks.append(_parse_block(buf))
                 buf = []
         else:
-            buf.append(line.strip())
+            # --- FIX: Smart split for PDFs lacking blank lines between jobs ---
+            if buf and _RE_DATE_RANGE.search(s):
+                has_date = any(_RE_DATE_RANGE.search(b) for b in buf)
+                if has_date:
+                    prev = buf[-1]
+                    if not prev.startswith(("•", "-", "*", "·", "\u2022")) and len(prev) < 80:
+                        blocks.append(_parse_block(buf[:-1]))
+                        buf = [prev]
+                    else:
+                        blocks.append(_parse_block(buf))
+                        buf = []
+            buf.append(s)
     if buf:
         blocks.append(_parse_block(buf))
     return blocks

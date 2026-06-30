@@ -63,16 +63,15 @@ class NormResult:
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Month-name → zero-padded number  (e.g. "january" → "01")
-_MONTH_MAP: dict[str, str] = {
-    name.lower(): f"{idx:02d}"
-    for idx, name in enumerate(calendar.month_name)
-    if name  # skip the empty 0-th entry
-}
+_MONTH_MAP: dict[str, str] = {}
+for idx, name in enumerate(calendar.month_name):
+    if name:
+        _MONTH_MAP[name.lower()] = f"{idx:02d}"
+for idx, name in enumerate(calendar.month_abbr):
+    if name:
+        _MONTH_MAP[name.lower()] = f"{idx:02d}"
 
-# Regex alternation of full month names
-_MONTH_NAMES_PATTERN: str = "|".join(
-    re.escape(name) for name in calendar.month_name if name
-)
+_MONTH_NAMES_PATTERN = r"|".join(list(_MONTH_MAP.keys()))
 
 # ── Date-format whitelist regexes ──
 _RE_MONTH_YYYY = re.compile(
