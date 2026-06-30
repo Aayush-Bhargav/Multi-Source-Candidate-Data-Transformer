@@ -1,0 +1,4 @@
+id,name,email,phone,location,headline,skills,linkedin
+C001,Jane Doe,jane@example.com,+14155552671,"San Francisco, CA, US",Senior Engineer,"Python, React, PostgreSQL",https://linkedin.com/in/janedoe
+C002,John Smith,john@example.com;john.smith@corp.io,+442079460958,"London, UK",Backend Lead,"Java, Spring Boot, Kubernetes",https://linkedin.com/in/johnsmith
+C003,Alice Lee,alice@example.com,+919876543210,"Bangalore, India",Data Scientist,"Python, TensorFlow, Pandas",

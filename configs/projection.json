@@ -1,0 +1,92 @@
+{
+  "version": "1.0",
+  "description": "Default Eightfold projection configuration. Maps CanonicalProfile fields to a custom output schema.",
+  "fields": [
+    {
+      "target": "id",
+      "from": "candidate_id",
+      "type": "str",
+      "required": true,
+      "on_missing": "error"
+    },
+    {
+      "target": "name",
+      "from": "full_name",
+      "type": "str",
+      "required": true,
+      "on_missing": "error"
+    },
+    {
+      "target": "primary_email",
+      "from": "emails[0]",
+      "type": "str",
+      "required": false,
+      "on_missing": "null"
+    },
+    {
+      "target": "primary_phone",
+      "from": "phones[0]",
+      "type": "str",
+      "required": false,
+      "on_missing": "null",
+      "normalize": "E164"
+    },
+    {
+      "target": "city",
+      "from": "location.city",
+      "type": "str",
+      "required": false,
+      "on_missing": "null"
+    },
+    {
+      "target": "country",
+      "from": "location.country",
+      "type": "str",
+      "required": false,
+      "on_missing": "null"
+    },
+    {
+      "target": "headline",
+      "from": "headline",
+      "type": "str",
+      "required": false,
+      "on_missing": "omit"
+    },
+    {
+      "target": "current_company",
+      "from": "experience[0].company",
+      "type": "str",
+      "required": false,
+      "on_missing": "null"
+    },
+    {
+      "target": "current_title",
+      "from": "experience[0].title",
+      "type": "str",
+      "required": false,
+      "on_missing": "null"
+    },
+    {
+      "target": "years_experience",
+      "from": "years_experience",
+      "type": "float",
+      "required": false,
+      "on_missing": "null"
+    },
+    {
+      "target": "top_skills",
+      "from": "skills[:5].name",
+      "type": "list",
+      "required": false,
+      "on_missing": "null"
+    },
+    {
+      "target": "confidence_score",
+      "from": "overall_confidence",
+      "type": "float",
+      "required": true,
+      "on_missing": "error"
+    }
+  ],
+  "include_confidence": true
+}

@@ -1,0 +1,56 @@
+[
+  {
+    "id": "ATS-1001",
+    "name": "Carlos Rivera",
+    "email": "carlos@example.com",
+    "phone": "+12125551234",
+    "location": "New York, NY, US",
+    "headline": "Full-Stack Developer",
+    "skills": ["JavaScript", "React", "Node.js", "MongoDB"],
+    "experience": [
+      {
+        "company": "TechCorp",
+        "title": "Senior Developer",
+        "start": "January 2019",
+        "end": "Present"
+      }
+    ],
+    "education": [
+      {
+        "institution": "NYU",
+        "degree": "BS",
+        "field": "Computer Science",
+        "end_year": 2018
+      }
+    ],
+    "links": {
+      "linkedin": "https://linkedin.com/in/carlosrivera",
+      "github": "https://github.com/crivera"
+    }
+  },
+  {
+    "id": "ATS-1002",
+    "full_name": "Priya Patel",
+    "emails": ["priya@example.com", "p.patel@work.io"],
+    "phone": "+919876500000",
+    "location": "Mumbai, India",
+    "title": "ML Engineer",
+    "skills": "Python, PyTorch, scikit-learn, Docker",
+    "experience": [
+      {
+        "company": "AI Labs",
+        "title": "ML Engineer",
+        "start": "2020-06",
+        "end": "Current"
+      }
+    ],
+    "education": [
+      {
+        "institution": "IIT Bombay",
+        "degree": "MTech",
+        "field": "Machine Learning",
+        "end_year": "Class of 2020"
+      }
+    ]
+  }
+]

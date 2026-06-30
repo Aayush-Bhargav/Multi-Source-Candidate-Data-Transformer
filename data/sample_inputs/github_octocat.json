@@ -1,0 +1,12 @@
+{
+  "profile": {
+    "id": 12345678,
+    "login": "octocat",
+    "name": "The Octocat",
+    "email": "octocat@github.com",
+    "bio": "Open source enthusiast and GitHub mascot",
+    "location": "San Francisco, CA",
+    "html_url": "https://github.com/octocat"
+  },
+  "languages": ["Ruby", "JavaScript", "Shell", "Python", "Go"]
+}

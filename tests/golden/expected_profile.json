@@ -1,0 +1,91 @@
+{
+  "id": "ATS-1001",
+  "name": "Carlos Rivera",
+  "primary_email": "carlos@example.com",
+  "primary_phone": "+12125551234",
+  "city": "New York",
+  "country": "US",
+  "headline": "Full-Stack Developer",
+  "current_company": "TechCorp",
+  "current_title": "Senior Developer",
+  "years_experience": null,
+  "top_skills": [
+    "JavaScript",
+    "React",
+    "Node.js",
+    "MongoDB"
+  ],
+  "confidence_score": 0.9,
+  "_metadata": {
+    "name": {
+      "confidence": 0.9,
+      "sources": [
+        "ats_json"
+      ],
+      "method": "exact"
+    },
+    "primary_email": {
+      "confidence": 0.9,
+      "sources": [
+        "ats_json"
+      ],
+      "method": "exact"
+    },
+    "primary_phone": {
+      "confidence": 0.9,
+      "sources": [
+        "ats_json"
+      ],
+      "method": "phone_e164"
+    },
+    "city": {
+      "confidence": 0.9,
+      "sources": [
+        "ats_json"
+      ],
+      "method": "exact"
+    },
+    "country": {
+      "confidence": 0.9,
+      "sources": [
+        "ats_json"
+      ],
+      "method": "country_unresolved"
+    },
+    "headline": {
+      "confidence": 0.9,
+      "sources": [
+        "ats_json"
+      ],
+      "method": "exact"
+    },
+    "current_company": {
+      "confidence": 0.9,
+      "sources": [
+        "ats_json"
+      ],
+      "method": "chrono_dedup"
+    },
+    "current_title": {
+      "confidence": 0.9,
+      "sources": [
+        "ats_json"
+      ],
+      "method": "chrono_dedup"
+    },
+    "years_experience": {
+      "confidence": 0.0,
+      "sources": [
+        "ats_json"
+      ],
+      "method": "interval_union"
+    },
+    "top_skills": {
+      "confidence": 0.9,
+      "sources": [
+        "ats_json"
+      ],
+      "method": "skill_taxonomy_match"
+    }
+  }
+}
